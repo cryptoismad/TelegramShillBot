@@ -1,9 +1,20 @@
 # stdlib
+import asyncio
+import copy
 import unittest
+from unittest.mock import MagicMock
 
 # custom
 import tg_shill_bot
 
+def mock_raid_settings():
+    mock = tg_shill_bot
+    mock.load_settings = MagicMock(return_value={
+        "raid": {
+            "simple": True,
+        }
+    })
+    return mock
 
 class ValidateSettingsTest(unittest.TestCase):
     def test_load_settings(self):
@@ -50,6 +61,15 @@ class ValidateSettingsTest(unittest.TestCase):
             bad_app_short_name.pop("app_short_name")
             tg_shill_bot.validate_account_settings(bad_app_short_name)
 
+    def test_increment_count(self):
+        # assert legit increase of count
+        channel = {"count": 0}
+        channel = tg_shill_bot.increment_count(channel)
+        self.assertEqual(channel["count"], 1)
+
+    def test_channel_to_raid(self):
+        channel = mock_raid_settings().channel_to_raid("simple")
+        self.assertTrue(channel)
 
 if __name__ == "__main__":
     unittest.main()
